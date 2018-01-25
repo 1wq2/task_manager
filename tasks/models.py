@@ -1,5 +1,6 @@
 from django.db import models
-# from django.core.urlresolvers import reverse
+#from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.models import Permission, User
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -54,7 +55,7 @@ class User(AbstractUser):
 class Project(models.Model):
     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
 
-    project_title = models.FileField()
+    project_title = models.CharField(max_length=100)
     users = []
     tasks = []
 
@@ -65,9 +66,6 @@ class Project(models.Model):
     def add_user(self, user):
         self.users.append(user)
         user.add_project(self)
-    #
-    # def get_absolute_url(self):
-    #     return reverse('tasks:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
        return self.project_title
@@ -76,16 +74,15 @@ class Task(models.Model):
     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, default=1, on_delete=models.CASCADE)
 
-    task_title = models.FileField()
-    task_description = models.FileField()
-    task_due_date = models.FileField()
+    task_title = models.CharField(max_length=100)
+    task_description = models.CharField(max_length=100)
+    task_due_date = models.CharField(max_length=100)
 
 
     def get_absolute_url(self):
         return reverse('tasks:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        #return self.template_logo + '-' + self.template_title
         return self.task_title + '-' + self.task_description + '-' + self.task_due_date
 
 

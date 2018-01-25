@@ -15,7 +15,6 @@
                     <div class="thumbnail">
                         <!-- logo -->
                         <a href="{% url 'tasks:detail' task.id %}">
-{#                            <img src="{{ task.sample_logo.url }}" class="img-responsive">#}
                         </a>
                         <div class="caption">
                             <h2>{{ task.task_title }}</h2>
@@ -31,10 +30,6 @@
                                     <span class="glyphicon glyphicon-trash"></span>
                                 </button>
                             </form>
-
-{#                            <!-- Favorite Sample -->#}
-{#                            <a href="#" class="btn btn-success btn-sm" role="button">Make Task#}
-{#                            </a>#}
 
                         </div>
                     </div>

@@ -1,7 +1,3 @@
-from django.contrib.auth import logout
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
 
 from .models import Project, Task
 from django.http import HttpResponse
@@ -17,23 +13,12 @@ from django.urls import reverse_lazy
 from .forms import UserForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-#############################
-
-from django.utils.http import is_safe_url
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login, logout as auth_logout
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.debug import sensitive_post_parameters
-from django.views.generic import FormView, RedirectView
 
 ################
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from tasks.serializers import TaskSerializer, UserSerializer
 from tasks.models import User
 ################
@@ -129,7 +114,7 @@ class UserFormView(View):
 
 
 class TaskViewSet(viewsets.ReadOnlyModelViewSet):
-    """ List all of the notes for a user """
+    """ List all of the tasks for a user """
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskSerializer
 
