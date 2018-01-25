@@ -1,7 +1,7 @@
 import datetime
 
 from task_manager import celery_app
-from api.utils.util import fetch_users_with_assigned_tasks, notify_users
+from tasks.utils.util import fetch_users_with_assigned_tasks, notify_users
 
 EMAIL_NOTIFICATION_PERIOD_HOURS = 24
 EMAIL_SUBJECT = 'Task manager email'

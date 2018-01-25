@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'oauth2_provider',
 ]
 
 THIRD_PARTY_APPS = (
@@ -133,6 +135,18 @@ LOGIN_REDIRECT_URL = '/tasks/'
 
 AUTH_USER_MODEL = 'tasks.User'
 
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read Access',
+        'write': 'Write Access'
+    },
+    'DEFAULT_SCOPES': {
+        'read': 'Read Access'
+    },
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 36000,
+}
+
+
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -154,3 +168,10 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/London'
 CELERY_IMPORTS = ("api.tasks", )
+
+
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = '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'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
