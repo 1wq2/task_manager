@@ -23,6 +23,18 @@ from tasks.serializers import TaskSerializer, UserSerializer
 from tasks.models import User
 ################
 
+from django.contrib.auth import get_user_model
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from oauth2_provider.contrib.rest_framework import TokenHasScope, TokenHasReadWriteScope
+
+from tasks.models import Task, Project, UserRole
+from tasks.utils.exceptions import ResourceNotFoundException
+from tasks.serializers import UserSerializer, TaskSerializer, \
+                            ProjectSerializer
+
+
 from django.contrib.auth import login
 
 class VisitorView(generic.TemplateView):
