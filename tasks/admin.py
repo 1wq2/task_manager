@@ -93,9 +93,9 @@ admin.site.register(User, UserAdmin)
 # unregister the Group model from admin.
 admin.site.unregister(Group)
 
-admin.site.register([
-    User,
-    UserRole,
-    Task,
-    Project
-])
+# admin.site.register([
+#     User,
+#     UserRole,
+#     Task,
+#     Project
+# ])
