@@ -1,8 +1,3 @@
-
-from .models import Project, Task
-from django.http import HttpResponse
-from django.template import loader
-
 from django.views import generic
 from django.views.generic import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -13,13 +8,6 @@ from django.urls import reverse_lazy
 from .forms import UserForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-
-################
-from rest_framework import viewsets
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from tasks.serializers import TaskSerializer, UserSerializer
 from tasks.models import User
 ################
 
@@ -36,6 +24,8 @@ from tasks.serializers import UserSerializer, TaskSerializer, \
 
 
 from django.contrib.auth import login
+User = get_user_model()
+
 
 class VisitorView(generic.TemplateView):
     template_name = 'tasks/base_visitor.html'
@@ -45,12 +35,12 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     redirect_field_name = 'redirect_to'
 
     template_name = 'tasks/index.html'
-    context_object_name = 'tasks' #all_samples
+    context_object_name = 'tasks'
 
     def get_queryset(self):
         print(self.request.user)
         return Task.objects.filter(user=self.request.user)
-        #return Task.objects.all()
+
 
 
 class DetailView(LoginRequiredMixin, generic.DeleteView):
@@ -66,7 +56,7 @@ class TaskCreate(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
 
     model = Task
-    fields = ['task_title', 'task_description', 'task_due_date']
+    fields = ['task_title', 'task_description', 'task_due_date',  'created_date', 'assigned_date']
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -79,7 +69,7 @@ class TaskUpdate(LoginRequiredMixin, UpdateView):
     redirect_field_name = 'redirect_to'
 
     model = Task
-    fields = ['task_title', 'task_description', 'task_due_date']
+    fields = ['task_title', 'task_description', 'task_due_date', 'created_date', 'assigned_date']
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -125,16 +115,187 @@ class UserFormView(View):
         return render(request, self.template_name, {'form': form})
 
 
-class TaskViewSet(viewsets.ReadOnlyModelViewSet):
-    """ List all of the tasks for a user """
-    permission_classes = (IsAuthenticated,)
+def get_object(_model, pk):
+    try:
+        return _model.objects.get(pk=pk)
+    except _model.DoesNotExist:
+        raise ResourceNotFoundException
+
+
+class UserList(APIView):
+    permission_classes = [TokenHasReadWriteScope]
+
+    def get(self, request, format=None):
+        users = User.objects.order_by('-date_joined')
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UserDetail(APIView):
+    permission_classes = [TokenHasReadWriteScope]
+
+    def get(self, request, pk, format=None):
+        try:
+            user = get_object(User, pk)
+            serializer = UserSerializer(user)
+            return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+    def put(self, request, pk, format=None):
+        try:
+            user = get_object(User, pk)
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+    def delete(self, request, pk, format=None):
+        user = get_object(User, pk)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RoleList(APIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ['read']
+
+    def get(self, request, format=None):
+        user_roles = UserRole.objects.all()
+        serializer = UserRoleSerializer(user_roles, many=True)
+        return Response(serializer.data)
+
+
+class TaskList(APIView):
+    permission_classes = [TokenHasReadWriteScope]
+
+    def get(self, request, format=None):
+        tasks = Task.objects.order_by('-created_date')
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = TaskSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TaskDetail(APIView):
+    permission_classes = [TokenHasReadWriteScope]
     serializer_class = TaskSerializer
 
-    def get_queryset(self):
-        return Task.objects.filter(owner=self.request.user).order_by('-pub_date')
+    def get(self, request, pk, format=None):
+        try:
+            task = get_object(Task, pk)
+            serializer = TaskSerializer(task)
+            return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+    def put(self, request, pk, format=None):
+        try:
+            task = get_object(Task, pk)
+            serializer = TaskSerializer(task, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+    def delete(self, request, pk, format=None):
+        task = get_object(Task, pk)
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class ProjectList(APIView):
+    permission_classes = [TokenHasReadWriteScope]
+
+    def get(self, request, format=None):
+        projects = Project.objects.order_by('-created_date')
+        serializer = ProjectSerializer(projects, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ProjectSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ProjectDetail(APIView):
+    permission_classes = [TokenHasReadWriteScope]
+
+    def get(self, request, pk, format=None):
+        try:
+            project = get_object(Project, pk)
+            serializer = ProjectSerializer(project)
+            return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+    def put(self, request, pk, format=None):
+        try:
+            project = get_object(Project, pk)
+            serializer = ProjectSerializer(project, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+    def delete(self, request, pk, format=None):
+        project = get_object(Project, pk)
+        project.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ProjectTasks(APIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ['read']
+
+    def get(self, request, pk, format=None):
+        try:
+            project = get_object(Project, pk)
+            tasks = project.tasks.order_by('-created_date')
+            serializer = ProjectTasksSerializer(tasks, many=True)
+            return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+
+class UserProjects(APIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ['read']
+
+    def get(self, request, pk, format=None):
+        try:
+            user = get_object(User, pk)
+            projects = user.projects.order_by('-created_date')
+            serializer = ProjectSerializer(projects, many=True)
+            return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)
+
+
+class ProjectUsers(APIView):
+    permission_classes = [TokenHasScope]
+    required_scopes = ['read']
+
+    def get(self, request, pk, format=None):
+        try:
+            project = get_object(Project, pk)
+            users = project.users.order_by('-date_joined')
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+        except ResourceNotFoundException as exc:
+            return Response(data=exc.data, status=exc.status_code)

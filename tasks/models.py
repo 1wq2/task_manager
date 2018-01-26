@@ -93,7 +93,8 @@ class Task(models.Model):
         return reverse('tasks:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.task_title + '-' + self.task_description + '-' + self.task_due_date
+        return self.task_title + '-' + self.task_description
+
 
 
 

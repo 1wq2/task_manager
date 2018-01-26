@@ -18,7 +18,7 @@ from django.urls import path
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
-from tasks.views import TaskViewSet, UserViewSet
+
 from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
 from django.conf.urls import url, include
@@ -26,16 +26,11 @@ from django.contrib import admin
 from rest_framework.urlpatterns import format_suffix_patterns
 
 
-router = routers.DefaultRouter()
-router.register(r'notes', TaskViewSet, 'Note')
-router.register(r'users', UserViewSet)
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^tasks/', include('tasks.urls')),
     url(r'^', include('tasks.urls_visitor')),
 
-    url(r'^api/', include(router.urls)), #rest api
     url(r'^oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
 ]

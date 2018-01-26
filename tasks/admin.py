@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Project,Task
+from .models import *
 # Register your models here.
 
 admin.site.register(Project)
@@ -92,3 +92,10 @@ admin.site.register(User, UserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 admin.site.unregister(Group)
+
+admin.site.register([
+    User,
+    UserRole,
+    Task,
+    Project
+])
