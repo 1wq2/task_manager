@@ -8,8 +8,6 @@ from django.urls import reverse_lazy
 from .forms import UserForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from tasks.models import User
-################
 
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -19,8 +17,8 @@ from oauth2_provider.contrib.rest_framework import TokenHasScope, TokenHasReadWr
 
 from tasks.models import Task, Project, UserRole
 from tasks.utils.exceptions import ResourceNotFoundException
-from tasks.serializers import UserSerializer, TaskSerializer, \
-                            ProjectSerializer
+from tasks.serializers import UserSerializer, UserRoleSerializer,  TaskSerializer, \
+                            ProjectSerializer, ProjectTasksSerializer
 
 
 from django.contrib.auth import login
@@ -29,6 +27,7 @@ User = get_user_model()
 
 class VisitorView(generic.TemplateView):
     template_name = 'tasks/base_visitor.html'
+
 
 class IndexView(LoginRequiredMixin, generic.ListView):
     login_url = '/tasks/login_user'
@@ -40,7 +39,6 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         print(self.request.user)
         return Task.objects.filter(user=self.request.user)
-
 
 
 class DetailView(LoginRequiredMixin, generic.DeleteView):
@@ -64,6 +62,7 @@ class TaskCreate(LoginRequiredMixin, CreateView):
         object.save()
         return super(TaskCreate, self).form_valid(form)
 
+
 class TaskUpdate(LoginRequiredMixin, UpdateView):
     login_url = '/login_user/'
     redirect_field_name = 'redirect_to'
@@ -77,12 +76,14 @@ class TaskUpdate(LoginRequiredMixin, UpdateView):
         object.save()
         return super(TaskUpdate, self).form_valid(form)
 
+
 class TaskDelete(LoginRequiredMixin, DeleteView):
     login_url = '/login_user/'
     redirect_field_name = 'redirect_to'
 
     model = Task
     success_url = reverse_lazy('tasks:index')
+
 
 class UserFormView(View):
     form_class = UserForm

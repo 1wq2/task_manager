@@ -1,41 +1,9 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Permission
 
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from task_manager import settings
-
-class MyUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
-        """
-        Creates and saves a User with the given email, date of
-        birth and password.
-        """
-        if not email:
-            raise ValueError('Users must have an email address')
-
-        user = self.model(
-            email=self.normalize_email(email),
-
-        )
-
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, password):
-        """
-        Creates and saves a superuser with the given email, date of
-        birth and password.
-        """
-        user = self.create_user(
-            email,
-            password=password,
-
-        )
-        # user.is_admin = True
-        user.save(using=self._db)
-        return user
 
 
 class UserRole(models.Model):
@@ -60,9 +28,7 @@ class User(AbstractUser):
         return self.tasks
 
 
-
 class Project(models.Model):
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='projects', blank=True)
 
     project_title = models.CharField(max_length=100)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='projects', blank=True)
@@ -70,13 +36,13 @@ class Project(models.Model):
 
     tasks = []
 
-
     def add_task(self, task):
         self.tasks.append(task)
         return self.tasks
 
     def __str__(self):
-       return self.project_title
+        return self.project_title
+
 
 class Task(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
