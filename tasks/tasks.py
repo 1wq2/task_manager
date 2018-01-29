@@ -8,6 +8,8 @@ EMAIL_SUBJECT = 'Task manager email'
 
 celery_app.conf.timezone = 'UTC'
 
+
+
 @celery_app.task
 def send_email():
     users = fetch_users_with_assigned_tasks()

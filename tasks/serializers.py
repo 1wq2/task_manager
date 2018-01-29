@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from tasks.models import Task, Project, UserRole
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
 
 from django.utils import timezone
 
