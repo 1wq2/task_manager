@@ -3,9 +3,9 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import force_authenticate, APIRequestFactory
 
-from api.config.tests_config import BaseTest
-from api.models import Project
-from api.views import UserList, UserDetail, ProjectUsers, ProjectDetail
+from tasks.config.tests_config import BaseTest
+from tasks.models import Project
+from tasks.views import UserList, UserDetail, ProjectUsers, ProjectDetail
 
 
 User = get_user_model()

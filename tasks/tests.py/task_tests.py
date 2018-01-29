@@ -3,7 +3,7 @@ from rest_framework.test import force_authenticate, APIRequestFactory
 
 from tasks.config.tests_config import BaseTest
 from tasks.models import Task, Project, User
-from tasks.views import UserFormView, UserViewSet, TaskViewSet, IndexView, DetailView
+from tasks.views import TaskList, TaskDetail, ProjectTasks
 
 
 class TaskTest(BaseTest):
@@ -16,7 +16,7 @@ class TaskTest(BaseTest):
         }
 
         factory = APIRequestFactory()
-        view = TaskViewSet.as_view()
+        view = TaskList.as_view()
 
         request = factory.post('/api/tasks/', data=data)
         force_authenticate(request, user=self.test_user, token=self.full_access_token)
@@ -35,7 +35,7 @@ class TaskTest(BaseTest):
         }
 
         factory = APIRequestFactory()
-        view = TaskViewSet.as_view()
+        view = TaskList.as_view()
 
         request = factory.post('/api/tasks/', data=data)
         force_authenticate(request, user=self.test_user, token=self.read_access_token)
@@ -45,7 +45,7 @@ class TaskTest(BaseTest):
 
     def test_get_tasks(self):
         factory = APIRequestFactory()
-        view = TaskViewSet.as_view()
+        view = TaskList.as_view()
 
         project = Project.objects.create(title='TestProject 1')
         tasks = Task.objects.bulk_create([
@@ -86,7 +86,7 @@ class TaskTest(BaseTest):
 
     def test_get_task_detail(self):
         factory = APIRequestFactory()
-        view = DetailView.as_view()
+        view = TaskDetail.as_view()
 
         project = Project.objects.create(title='TestProject 1', id=1)
         task = Task.objects.create(id=1, title='Test', description='test', project_id=project.id)
@@ -108,7 +108,7 @@ class TaskTest(BaseTest):
 
     def test_update_task(self):
         factory = APIRequestFactory()
-        view = DetailView.as_view()
+        view = TaskDetail.as_view()
 
         project = Project.objects.create(id=1, title='TestProject 1')
         Task.objects.create(title='TestTask', description='test', project_id=project.id, id=1)
@@ -128,7 +128,7 @@ class TaskTest(BaseTest):
 
     def test_update_task_fail_by_user_with_read_scope_only(self):
         factory = APIRequestFactory()
-        view = DetailView.as_view()
+        view = TaskDetail.as_view()
 
         project = Project.objects.create(id=1, title='TestProject 1')
         Task.objects.create(title='TestTask', description='test', project_id=project.id, id=1)
@@ -146,7 +146,7 @@ class TaskTest(BaseTest):
 
     def test_assign_task_to_user_after_task_updating(self):
         factory = APIRequestFactory()
-        view = DetailView.as_view()
+        view = TaskDetail.as_view()
 
         project = Project.objects.create(id=1, title='TestProject 1')
         task = Task.objects.create(title='TestTask', project_id=project.id, id=1)
@@ -168,7 +168,7 @@ class TaskTest(BaseTest):
 
     def test_assign_task_to_user_after_task_creation(self):
         factory = APIRequestFactory()
-        view = TaskViewSet.as_view()
+        view = TaskList.as_view()
 
         project = Project.objects.create(id=1, title='TestProject 1')
         user = User.objects.create(id=1, username='test', password='123')
@@ -190,7 +190,7 @@ class TaskTest(BaseTest):
 
     def test_delete_task(self):
         factory = APIRequestFactory()
-        view = DetailView.as_view()
+        view = TaskDetail.as_view()
 
         project = Project.objects.create(title='TestProject')
         tasks = Task.objects.bulk_create([
@@ -210,7 +210,7 @@ class TaskTest(BaseTest):
 
     def test_delete_task_fail_by_user_with_read_scope_only(self):
         factory = APIRequestFactory()
-        view = DetailView.as_view()
+        view = TaskDetail.as_view()
 
         project = Project.objects.create(title='TestProject')
 
@@ -228,7 +228,7 @@ class TaskTest(BaseTest):
 
     def test_task_not_found(self):
         factory = APIRequestFactory()
-        view = DetailView.as_view()
+        view = TaskDetail.as_view()
 
         request = factory.put('/api/tasks/10')
         force_authenticate(request, user=self.test_user, token=self.full_access_token)
@@ -240,3 +240,19 @@ class TaskTest(BaseTest):
         response = view(request, pk='10')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_tasks_of_project(self):
+        factory = APIRequestFactory()
+        view = ProjectTasks.as_view()
+
+        project = Project.objects.create(id=1, title='TestProject')
+        Task.objects.bulk_create([
+            (Task(id=1, title='Test1', project=project)),
+            (Task(id=2, title='Test2', project=project)),
+            (Task(id=3, title='Test3', project=project))
+        ])
+
+        request = factory.get('/api/projects/1/tasks')
+        force_authenticate(request, user=self.test_user, token=self.full_access_token)
+        response = view(request, pk='1')
+
+        self.assertEqual(len(response.data), 3)
