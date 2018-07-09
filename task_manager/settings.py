@@ -85,8 +85,12 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'task_user',
+        'USER': 'task_user',
+        'PASSWORD': 'pass_word',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
@@ -129,8 +133,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 LOGIN_REDIRECT_URL = '/tasks/'
 
 AUTH_USER_MODEL = 'tasks.User'
@@ -146,32 +148,32 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 36000,
 }
 
-REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    )
-}
-
-
 # REST_FRAMEWORK = {
 #     # Use Django's standard `django.contrib.auth` permissions,
 #     # or allow read-only access for unauthenticated users.
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+#     ],
 #     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-#     ),
-#     'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAuthenticated',
-#     ),
-#     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-#     'EXCEPTION_HANDLER': 'api.utils.exceptions.custom_exception_handler'
+#         'rest_framework.authentication.BasicAuthentication',
+#         'rest_framework.authentication.SessionAuthentication',
+#         'rest_framework.authentication.TokenAuthentication',
+#     )
 # }
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'EXCEPTION_HANDLER': 'api.utils.exceptions.custom_exception_handler'
+}
 
 # CELERY
 BROKER_URL = 'redis://localhost:6379/0'
@@ -179,7 +181,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Europe/London'
+CELERY_TIMEZONE = 'Europe/Minsk'
 CELERY_IMPORTS = ("tasks.tasks", )
 
 
