@@ -5,9 +5,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.urls import reverse_lazy
 
-from .forms import UserForm
+from . forms import UserForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 
 from django.contrib.auth import get_user_model
 from rest_framework import status

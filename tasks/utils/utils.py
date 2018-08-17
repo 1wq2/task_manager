@@ -7,7 +7,7 @@ from smtplib import SMTPException
 
 from tasks.models import Task, User
 
-FROM_EMAIL = 'email@gmail.com'
+FROM_EMAIL = 'stanislaukhomich@gmail.com'
 
 
 def fetch_users_with_assigned_tasks() -> List[User]:

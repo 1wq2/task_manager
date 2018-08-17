@@ -27,12 +27,11 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    url(r'^tasks/', include('tasks.urls')),
-    url(r'^', include('tasks.urls_visitor')),
 
     url(r'^oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-
+    url(r'^admin/', admin.site.urls),
+    url(r'^tasks/', include('tasks.urls')),
+    url(r'^', include('tasks.urls_visitor')),
 ]
 # urlpatterns = format_suffix_patterns(urlpatterns)
 
