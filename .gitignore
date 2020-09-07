@@ -1,2 +1,6 @@
 .venv
+/venv/
 .idea
+**/*.py[co]
+__pycache__
+

@@ -14,7 +14,6 @@ class UserRoleSerializer(serializers.ModelSerializer):
         fields = ('id', 'role_name')
 
 
-
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     role = UserRoleSerializer(read_only=True)
     role_id = serializers.PrimaryKeyRelatedField(
@@ -64,6 +63,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             instance.users.add(user)
 
         return instance
+
 
 class ProjectTasksSerializer(serializers.ModelSerializer):
     class Meta:
